@@ -1,0 +1,249 @@
+<html>
+<head>
+  <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBN_C_poJxgCUqB7gmiCG9cGrhhN1lNuPU",
+    authDomain: "token-39339.firebaseapp.com",
+    databaseURL: "https://token-39339.firebaseio.com",
+    storageBucket: "token-39339.appspot.com",
+    messagingSenderId: "563628760233"
+  };
+  firebase.initializeApp(config);
+</script>
+  <script type="text/javascript">
+  var name="";
+
+  var newname="";
+  var room=0;
+  var car=0;
+  var users=name;
+  var maxroom=5;
+  //var occupants=0;
+  var maxcar=7;
+  //var riders=0;
+  var n=false;
+  var doner=false;
+  var na=false;
+  var occu=0;
+  var ride=0;
+
+  function updateroom(room,occu)
+  {
+    var newroom=firebase.database().ref("/"+"room/"+room);
+
+      //occu++;
+    newroom.update(
+      {
+        occupants:occu
+      }
+    )
+  }
+  function updatecar(car,ride)
+  {
+    var newcar=firebase.database().ref("/"+"car/"+car);
+   // ride++;
+   /*
+    newcar.update(
+    {
+      riders:ride
+    })*/
+    if(snapshot.val()==null)
+      newcar.set({riders:1});
+
+    newcar.transaction(function(riders)
+    {
+      if(riders===null)
+        riders:1;
+      else
+      return riders++;
+    });
+  
+}
+  function writeUserData(name,newname,room, car)
+  {
+    var newuser=firebase.database().ref("/"+"players/"+newname);
+  //  var newuserref=newuser.push();
+
+    newuser.set(
+      {
+        name:name,
+        roomNo:room,
+        gaddi:car,
+
+      }
+    );
+    //prompt(ref);
+  }
+
+  function get_name()
+  {
+    name=prompt("Enter your name");
+    var n=false;
+    var doner=false;
+  var na=false;
+  
+    name=name.toLowerCase();
+    newname=name.replace(/\s/g,'');
+    if(/^[a-z]+$/i.test(newname))
+    {
+      console.log(newname);
+      document.getElementById("name").innerHTML=name;
+      n=checkname(newname);
+      console.log(n);
+      doner=false;
+    }
+    else
+    {
+      window.alert("No special characters allowed");
+      get_name();
+    }
+  }
+
+  function randomize()
+  {
+    if(!doner)
+    {
+    
+    room= Math.floor(Math.random()*3)+1;
+    car= Math.floor(Math.random()*2)+1;
+    checkname(newname);
+
+   var r=checkroom(room);
+   var c=checkcar(car);
+   
+   console.log(na );
+   console.log( c );
+    console.log(r);
+   if(!na&&c&&r)
+    {
+      document.getElementById("room").innerHTML=room;
+      document.getElementById("car").innerHTML=car;
+
+      writeUserData(newname,newname,room,car);
+      updatecar(car,ride);
+
+      updateroom(room,occu);
+      occu=0;
+      ride=0;
+    }
+    
+    doner=true;
+  }
+  }
+  function getn(newname)
+  {
+
+     firebase.database().ref('/players/' + newname).on('value',function(snapshot) {
+       na = (snapshot.val()!==null);
+
+      // ...
+    });
+    return na;
+  }
+  function getoccupants(room)
+  {
+
+     firebase.database().ref('/room/' + room+"/occupants").on('value',function(snapshot) {
+      occu = snapshot.val();
+
+      // ...
+    });
+
+    return occu;
+  }
+  function getriders(car)
+  {
+
+     firebase.database().ref('/car/' + car+"/riders").on('value',function(snapshot) {
+      ride = snapshot.val();
+      // ...
+    });
+    return ride;
+  }
+function checkroom(room)
+{
+  occu=getoccupants(room);
+
+  if(occu<=5)
+  {
+    occu++;
+
+    return true;
+
+}
+else {
+  window.alert("pls retry");
+}
+
+}
+function checkcar(car)
+{
+   ride=getriders(car);
+
+  if(ride<=7)
+  {
+    ride++;
+  return true;
+}
+else {
+  window.alert("pls retry");
+  //car= Math.floor(Math.random()*2)+1;
+  //checkcar(car);
+}
+
+}
+
+function checkname(newname)
+{
+   na=getn(newname)
+  if (na==false){
+  //n=false;
+  return true;}
+  else
+  {
+  window.alert("DONE ALREADY!");
+  name="";
+  newname="";
+  return false;
+
+}
+
+}
+
+  </script>
+<title>Room and Cars</title>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<body>
+
+<center>
+
+<table width="200" border="2">
+  <tbody>
+    <tr>
+      <td><button type="button" onclick="get_name()" >Enter Name </button></td>
+      <td id="name">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Room </td>
+      <td id="room">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Car </td>
+      <td id ="car">&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+
+<button type="button" onclick="randomize()">Done</button>
+</center>
+
+</body>
+</head>
+</html>
